@@ -15,6 +15,18 @@ interface LoginResponse {
   token: string;
 }
 
+interface Log {
+  id: number;
+  data: string;
+  emocao: string;
+  horasSono: number;
+  aguaLitros: number;
+  fezExercicio: boolean;
+  descansouMente: boolean;
+  notas: string;
+  usuarioId: number;
+}
+
 interface SignInResponse {
   user: User;
   token: string;
@@ -44,9 +56,7 @@ const signIn = async (credentials: LoginCredentials): Promise<AuthResponse> => {
 
 // --- FUNÇÃO DE LOGOUT ---
 const signOut = async () => {
-  // Limpa o header do Axios
   api.defaults.headers.common['Authorization'] = undefined;
-  // O AuthContext já está limpando o AsyncStorage
 };
 
 // --- FUNÇÃO DE REGISTER ---
@@ -60,7 +70,7 @@ const register = async (credentials: RegisterCredentials) => {
       password: credentials.password,
     });
 
-    return response.data; // opcional, caso queira retornar o usuário criado
+    return response.data;
   } catch (error: any) {
     console.error('Erro no authService.register:', error);
     throw new Error('Erro ao criar usuário. Verifique os dados e tente novamente.');
@@ -70,21 +80,25 @@ const register = async (credentials: RegisterCredentials) => {
 
 // --- FUNÇÃO PARA CARREGAR USUÁRIO ---
 const getStoredUser = async (): Promise<User | null> => {
-  // Pega o token salvo
   const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
 
   if (token) {
-    // ✨ IMPORTANTE: Reconfigure o header do Axios ao abrir o app
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
-    return null; // Se não tem token, não tem usuário
+    return null; 
   }
-
-  // Pega os dados do usuário
   const userJson = await AsyncStorage.getItem(STORAGE_KEYS.USER);
   if (!userJson) return null;
 
   return JSON.parse(userJson) as User;
+};
+
+// --- FUNÇÃO PARA CARREGAR LOGS ---
+const logService = {
+  getLogs: async (): Promise<Log[]> => {
+    const response = await api.get('/log/meusLogs');
+    return response.data.content; 
+  }
 };
 
 // --- DEMAIS FUNÇÕES ---
@@ -103,4 +117,5 @@ export const authService = {
   getStoredUser,
   register,
   loadRegisteredUsers,
+  logService,
 };
