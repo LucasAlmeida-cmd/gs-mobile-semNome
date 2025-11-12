@@ -120,6 +120,18 @@ const logService = {
   }
 };
 
+
+// --- FUNÇÃO PARA deletar LOGS ---
+const deleteLog = async (id: number | string): Promise<void> => {
+  try {
+    const response = await api.delete(`/log/excluir/${id}`);
+    return;
+  } catch (error) {
+    console.error(`Erro ao deletar o log com ID ${id}:`, error);
+    throw error;
+  }
+};
+
 // --- DEMAIS FUNÇÕES ---
 
 
@@ -137,5 +149,6 @@ export const authService = {
   register,
   loadRegisteredUsers,
   updateUser,
+  deleteLog,
   logService,
 };
