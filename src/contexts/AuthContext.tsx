@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/auth';
 import { User, LoginCredentials, RegisterData, AuthContextData, UpdateUserCredentials } from '../types/auth';
 
-// Chaves de armazenamento
 const STORAGE_KEYS = {
   USER: '@GS:user',
   TOKEN: '@GS:token',
@@ -70,10 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUser = async (id: number, credentials: UpdateUserCredentials) => {
     try {
-      // chama o service pra atualizar no backend
       const updatedUser = await authService.updateUser(id, credentials);
-
-      // atualiza o estado global e o AsyncStorage
       setUser(updatedUser);
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
     } catch (error) {

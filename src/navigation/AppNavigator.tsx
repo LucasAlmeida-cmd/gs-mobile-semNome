@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList } from '../types/navigation';
 
-// Screens
+
 import LoginScreen from '../screens/LoginScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AdminDashboardScreen from '../screens/DashboardScreen';
@@ -72,7 +72,6 @@ export const AppNavigator: React.FC = () => {
               </>
             )}
 
-            {/* Rotas comuns para todos os usuários autenticados */}
             <Stack.Screen
               name="Profile"
               component={ProfileScreen}
