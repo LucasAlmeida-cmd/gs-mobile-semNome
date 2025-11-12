@@ -24,7 +24,13 @@ const EditLogScreen: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [log, setLog] = useState<any>(null);
 
- 
+  const [errors, setErrors] = useState({
+    data: '',
+    emocao: '',
+    horasSono: '',
+    aguaLitros: '',
+  });
+
   useEffect(() => {
     const fetchLog = async () => {
       try {
@@ -40,14 +46,53 @@ const EditLogScreen: React.FC = () => {
     fetchLog();
   }, [logId]);
 
+  const validateFields = () => {
+    const newErrors = { data: '', emocao: '', horasSono: '', aguaLitros: '' };
+    let valid = true;
+
+    if (!log.data) {
+      newErrors.data = 'A data é obrigatória.';
+      valid = false;
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(log.data)) {
+      newErrors.data = 'Formato inválido. Use YYYY-MM-DD.';
+      valid = false;
+    }
+
+    if (!log.emocao) {
+      newErrors.emocao = 'A emoção é obrigatória.';
+      valid = false;
+    }
+
+    if (!log.horasSono && log.horasSono !== 0) {
+      newErrors.horasSono = 'Informe as horas de sono.';
+      valid = false;
+    } else if (isNaN(Number(log.horasSono)) || log.horasSono < 0 || log.horasSono > 24) {
+      newErrors.horasSono = 'Valor inválido (0 a 24).';
+      valid = false;
+    }
+
+    if (!log.aguaLitros && log.aguaLitros !== 0) {
+      newErrors.aguaLitros = 'Informe os litros de água.';
+      valid = false;
+    } else if (isNaN(Number(log.aguaLitros)) || log.aguaLitros < 0 || log.aguaLitros > 10) {
+      newErrors.aguaLitros = 'Valor inválido (0 a 10).';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleUpdate = async () => {
+    if (!validateFields()) return;
+
     setSaving(true);
     try {
       await authService.logService.updateLog(logId, log);
       Alert.alert('Sucesso', 'Log atualizado com sucesso!');
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível atualizar o log.');
+      Alert.alert('Erro', 'Não foi possível atualizar o log. Tente novamente.');
       console.error(error);
     } finally {
       setSaving(false);
@@ -75,37 +120,57 @@ const EditLogScreen: React.FC = () => {
         <Input
           label="Data"
           value={log.data}
-          onChangeText={(text) => setLog({ ...log, data: text })}
+          onChangeText={(text) => {
+            setLog({ ...log, data: text });
+            if (errors.data) setErrors({ ...errors, data: '' });
+          }}
           placeholder="AAAA-MM-DD"
           inputStyle={styles.input}
           labelStyle={styles.label}
+          errorMessage={errors.data}
+          leftIcon={<MaterialIcons name="date-range" size={20} color="#fff" />}
         />
 
         <Input
           label="Emoção"
           value={log.emocao}
-          onChangeText={(text) => setLog({ ...log, emocao: text })}
+          onChangeText={(text) => {
+            setLog({ ...log, emocao: text });
+            if (errors.emocao) setErrors({ ...errors, emocao: '' });
+          }}
           placeholder="Como você se sentiu?"
           inputStyle={styles.input}
           labelStyle={styles.label}
+          errorMessage={errors.emocao}
+          leftIcon={<MaterialIcons name="mood" size={20} color="#fff" />}
         />
 
         <Input
           label="Horas de Sono"
           keyboardType="numeric"
           value={String(log.horasSono)}
-          onChangeText={(text) => setLog({ ...log, horasSono: parseInt(text) || 0 })}
+          onChangeText={(text) => {
+            setLog({ ...log, horasSono: parseInt(text) || 0 });
+            if (errors.horasSono) setErrors({ ...errors, horasSono: '' });
+          }}
           inputStyle={styles.input}
           labelStyle={styles.label}
+          errorMessage={errors.horasSono}
+          leftIcon={<MaterialIcons name="bed" size={20} color="#fff" />}
         />
 
         <Input
           label="Litros de Água"
           keyboardType="numeric"
           value={String(log.aguaLitros)}
-          onChangeText={(text) => setLog({ ...log, aguaLitros: parseFloat(text) || 0 })}
+          onChangeText={(text) => {
+            setLog({ ...log, aguaLitros: parseFloat(text) || 0 });
+            if (errors.aguaLitros) setErrors({ ...errors, aguaLitros: '' });
+          }}
           inputStyle={styles.input}
           labelStyle={styles.label}
+          errorMessage={errors.aguaLitros}
+          leftIcon={<MaterialIcons name="opacity" size={20} color="#fff" />}
         />
 
         <Input
@@ -115,6 +180,7 @@ const EditLogScreen: React.FC = () => {
           placeholder="Adicione observações..."
           inputStyle={styles.input}
           labelStyle={styles.label}
+          leftIcon={<MaterialIcons name="notes" size={20} color="#fff" />}
         />
 
         <Button
@@ -122,7 +188,14 @@ const EditLogScreen: React.FC = () => {
           onPress={handleUpdate}
           loading={saving}
           buttonStyle={styles.saveButton}
-          icon={<MaterialIcons name="save" size={20} color="#fff" style={{ marginRight: 5 }} />}
+          icon={
+            <MaterialIcons
+              name="save"
+              size={20}
+              color="#fff"
+              style={{ marginRight: 5 }}
+            />
+          }
         />
       </ScrollView>
     </Container>

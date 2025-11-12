@@ -21,4 +21,16 @@ export const styles = StyleSheet.create({
     borderColor: '#929292',
     marginTop: 10,
   },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  errorInputStyle: {
+    color: 'red',
+    fontSize: 12, 
+    marginLeft: 5, 
+  },
+
 });
